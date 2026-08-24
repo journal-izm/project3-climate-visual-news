@@ -19,6 +19,8 @@ METRICS = {
     "강수량": ("precipitation_mm", "mm"),
 }
 
+MAX_TRAINING_YEARS = 10
+
 
 def load_csv(source: str | Path | BytesIO) -> pd.DataFrame:
     return validate_and_clean(pd.read_csv(source))
@@ -58,6 +60,14 @@ def filter_data(
     if result.empty:
         raise ValueError("선택 조건에 해당하는 데이터가 없습니다.")
     return result.copy()
+
+
+def validate_training_period(start_year: int, end_year: int, max_years: int = MAX_TRAINING_YEARS) -> None:
+    """교육 프로젝트의 기본 분석기간이 최근 10개 연도를 넘지 않는지 확인한다."""
+    if start_year > end_year:
+        raise ValueError("시작 연도는 종료 연도보다 클 수 없습니다.")
+    if end_year - start_year + 1 > max_years:
+        raise ValueError(f"기본 분석기간은 {max_years}개 연도 이내여야 합니다.")
 
 
 def summarize(df: pd.DataFrame, metric_name: str, focus_region: str) -> dict:

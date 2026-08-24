@@ -5,8 +5,16 @@ import pytest
 
 from src.chart_service import save_timeseries_png
 from src.content_service import generate_article, generate_script, generate_storyboard, validate_generated_numbers
-from src.data_service import filter_data, load_csv, summarize, to_powerbi, validate_and_clean
+from src.data_service import (
+    filter_data,
+    load_csv,
+    summarize,
+    to_powerbi,
+    validate_and_clean,
+    validate_training_period,
+)
 from src.export_service import ensure_output_dirs, save_csv, save_text
+from src.video_service import find_local_videos
 
 
 DEMO = Path(__file__).parents[1] / "data" / "demo" / "climate_demo.csv"
@@ -95,3 +103,15 @@ def test_chart_png_is_created(tmp_path):
     path = save_timeseries_png(df, "평균기온", "기상청", tmp_path / "chart.png")
     assert path.exists()
     assert path.stat().st_size > 1000
+
+
+def test_training_period_is_limited_to_ten_years():
+    validate_training_period(2015, 2024)
+    with pytest.raises(ValueError, match="10개 연도"):
+        validate_training_period(2014, 2024)
+
+
+def test_local_video_discovery(tmp_path):
+    (tmp_path / "news.mp4").write_bytes(b"demo")
+    (tmp_path / "readme.txt").write_text("ignore", encoding="utf-8")
+    assert [path.name for path in find_local_videos(tmp_path)] == ["news.mp4"]

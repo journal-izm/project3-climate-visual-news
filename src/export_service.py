@@ -7,7 +7,10 @@ import pandas as pd
 
 def ensure_output_dirs(root: str | Path = "outputs") -> dict[str, Path]:
     root = Path(root)
-    paths = {name: root / name for name in ["charts", "articles", "scripts", "storyboards", "powerbi"]}
+    paths = {
+        name: root / name
+        for name in ["charts", "articles", "scripts", "storyboards", "powerbi", "videos"]
+    }
     for path in paths.values():
         path.mkdir(parents=True, exist_ok=True)
     return paths
